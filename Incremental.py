@@ -16,11 +16,13 @@ class Clicker:
     def __init__(self, parent):
         self.parent = parent
         self.purchase_buttons = {}
-        self.button = tk.Button(parent, text = "Tap", width = 20, height=5, command=self.increment, background ='cyan')
-        self.current_clicks = 0
+        self.button = tk.Button(parent, text = "Save a life", width = 20, height=5, command=self.increment, background ='cyan')
+        self.current_clicks = 10000000
         self.gear = {}
         #self.tools = {}
-        self.gear['clicker'] = Gear('clicker', 10, quantity = 1, limit=100)
+
+        #Initialize Buttons
+        self.gear['clicker'] = Gear('clicker', 10, quantity = 1, limit=10)
         self.gear['clicker upgrade'] = Gear('clicker upgrade', 50, quantity = 0, limit = 5)
         self.gear['puppy trainer'] = Gear('puppy trainer', 40, quantity = 0, limit = 2)
         self.gear['addition'] = Gear('addition', 75, quantity = 0, limit=1) #based on clicker, helps something
@@ -37,20 +39,33 @@ class Clicker:
                                            text=description % self.gear[name].cost,
                                            command=lamda: x=name: self.purchase(x))
         '''
+        #scrollbar
+        self.upgrade_frame = tk.Frame(parent)
+        self.upgrade_frame.grid(row=1, column=1, columnspan=2)
+        self.scrollbar = tk.Scrollbar(self.upgrade_frame, orient=tk.VERTICAL)
+        self.upgrade_canvas = tk.Canvas(self.upgrade_frame, yscrollcommand=self.scrollbar.set)
+        self.cframe = tk.Frame(self.upgrade_canvas)
+        self.cframe.bind("<Configure>", lambda x: self.upgrade_canvas.configure(scrollregion=self.upgrade_canvas.bbox('all'), width=400, height=100))
+        self.window = self.upgrade_canvas.create_window((0,0), window=self.cframe, anchor= 'nw')
+        self.scrollbar.config(command=self.upgrade_canvas.yview)
+        self.upgrade_canvas.grid(row=0, column=0)
+        self.scrollbar.grid(row=0, column=1, sticky='NS')
+        self.parent.bind('<MouseWheel>', lambda x: self.upgrade_canvas.yview_scroll(-1*(x.delta//30), 'units'))
 
-        self.purchase_buttons['clicker']= tk.Button(parent, text='Hits: (%d): 0' % self.gear['clicker'].cost,
+        #Buttons
+        self.purchase_buttons['clicker']= tk.Button(self.cframe, text='Assistant: (%d): 0' % self.gear['clicker'].cost,
             command=lambda: self.purchase('clicker'), background = 'magenta')
-        self.purchase_buttons['clicker upgrade']= tk.Button(parent, text='Two handed hit: (%d): 0' % self.gear['clicker upgrade'].cost,
+        self.purchase_buttons['clicker upgrade']= tk.Button(self.cframe, text='Caffeine boost: (%d): 0' % self.gear['clicker upgrade'].cost,
             command=lambda: self.purchase('clicker upgrade'), background = 'magenta')
-        self.purchase_buttons['puppy trainer'] = tk.Button(parent, text = 'Here come the puppies! (%d): 0' % self.gear['puppy trainer'].cost,
+        self.purchase_buttons['puppy trainer'] = tk.Button(self.cframe, text = 'Train your puppies! (%d): 0' % self.gear['puppy trainer'].cost,
             command=lambda: self.purchase('puppy trainer'), background='yellow')
-        self.purchase_buttons['addition']= tk.Button(parent, text='Give a boost: (%d): 0' % self.gear['addition'].cost,
+        self.purchase_buttons['addition']= tk.Button(self.cframe, text='Compensation for your volunteers: (%d): 0' % self.gear['addition'].cost,
             command=lambda: self.purchase('addition'), background = 'yellow')
-        self.purchase_buttons['something'] = tk.Button(parent, text = 'Something (%d): 0' % self.gear['something'].cost,
+        self.purchase_buttons['something'] = tk.Button(self.cframe, text = 'Volunteers (%d): 0' % self.gear['something'].cost,
             command=lambda: self.purchase('something'), background = 'blue')
-        self.purchase_buttons['want'] = tk.Button(parent, text = 'You want this (%d): 0' % self.gear['want'].cost,
+        self.purchase_buttons['want'] = tk.Button(self.cframe, text = 'Puppy helpers (%d): 0' % self.gear['want'].cost,
             command=lambda: self.purchase('want'), background = 'blue')
-        self.purchase_buttons['need'] = tk.Button(parent, text = 'You need this (%d): 0' % self.gear['need'].cost,
+        self.purchase_buttons['need'] = tk.Button(self.cframe, text = 'Automation (%d): 0' % self.gear['need'].cost,
             command=lambda: self.purchase('need'), background = 'blue')
 
         #self.tooltips = {'clicker':Tip(self.purchase_buttons['clicker'], 'more clicks'),
@@ -60,6 +75,9 @@ class Clicker:
         self.current_click_show.grid(row=0, column=1)
         self.per_second_show = tk.Label(parent, text = '0')
         self.per_second_show.grid(row=0, column=2)
+
+
+
         manual_row = 0
         auto_row= 0
         for name in sorted(self.gear, key=lambda x: self.gear[x].cost):
@@ -102,6 +120,7 @@ class Clicker:
         self.current_click_show.config(text = '{:,}'.format(self.current_clicks))
         self.per_second_show.config(text='{:,}'.format(int(per_second)))
         self.parent.after(1000, self.update)
+
 
 root = tk.Tk()
 clicker = Clicker(root)
