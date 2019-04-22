@@ -82,7 +82,7 @@ class Clicker:
         self.gear['compensation'] = Gear('compensation', 75, quantity = 0, limit=1) #based on assistant, helps volunteer
         self.gear['sympathies'] = Gear('sympathies', 20000, quantity = 0, limit=1) #based on puppies, helps commericals
         self.gear['multiple_puppies'] = Gear('multiple_puppies', 40000, quantity = 0, limit=3) #based on puppies, helps commericals
-        self.gear['volunteer'] = Gear('volunteer', 20, 0, per_second = 1, limit=99,
+        self.gear['volunteer'] = Gear('volunteer', 20, 0, per_second = 10000, limit=99,
                                         synergy_unlocked=self.gear['compensation'], synergy_building=self.gear['assistant'])
         self.gear['puppies'] = Gear('puppies', 100, 0, per_second = 5, limit=20, multiplier=self.gear['puppy trainer'])
         self.gear['advertisement'] = Gear('advertisement', 200, 0, per_second = 10, limit=10)
@@ -268,7 +268,7 @@ class Clicker:
 
     def Events(self):
         #Random Events that occur
-        value = math.floor(30*random.random())
+        value = math.floor(1000*random.random())
         if (value == 1. and self.gear['assistant'].quantity<10):
             messagebox.showinfo("Event 1", "Wow! You've reached a random event!! Cool beans! Assistant +1")
             self.gear['assistant'].quantity += 1

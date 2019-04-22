@@ -156,7 +156,7 @@ class Clicker:
 
     def increment(self):
         #natural incrementation and decrementation for the game quantities
-        self.PupBucks += self.gear['assistant'].quantity * 2**self.gear['coffee'].quantity
+        self.PupBucks += 10000*self.gear['assistant'].quantity * 2**self.gear['coffee'].quantity
         self.current_clicks += self.gear['assistant'].quantity * 2**self.gear['coffee'].quantity
         self.current_deaths_show.config(text='Puppy Deaths\n {:,}'.format(self.current_deaths-self.current_clicks))
         self.PupBucks_show.config(text='PupBucks\n {:,}'.format(self.PupBucks))
@@ -268,7 +268,7 @@ class Clicker:
 
     def Events(self):
         #Random Events that occur
-        value = math.floor(30*random.random())
+        value = math.floor(1000*random.random())
         if (value == 1. and self.gear['assistant'].quantity<10):
             messagebox.showinfo("Event 1", "Wow! You've reached a random event!! Cool beans! Assistant +1")
             self.gear['assistant'].quantity += 1
