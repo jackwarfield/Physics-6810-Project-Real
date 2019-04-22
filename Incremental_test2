@@ -34,6 +34,7 @@ class Clicker:
         self.purchase_buttons = {}
         self.button = tk.Button(parent, text = "Save a life", width = 20, height=5, command=self.increment, background ='cyan')
         self.current_clicks = 0
+        self.PupBucks = 0
         self.current_deaths = 10000000
         self.gear = {}
         def info():
@@ -109,8 +110,8 @@ class Clicker:
         self.current_deaths_show.grid(row=0, column=1)
         self.per_second_show = tk.Label(parent, text = 'Puppy Deaths/second\n 0')
         self.per_second_show.grid(row=0, column=2)
-        self.current_clicks_show = tk.Label(parent, text = 'PupBucks\n 0')
-        self.current_clicks_show.grid(row=1, column=0)
+        self.PupBucks_show = tk.Label(parent, text = 'PupBucks\n 0')
+        self.PupBucks_show.grid(row=1, column=0)
         self.info.grid(row=2, column=0)
         self.game.grid(row=3, column=0)
 
@@ -132,18 +133,19 @@ class Clicker:
         self.update()
 
     def increment(self):
+        self.PupBucks += self.gear['assistant'].quantity * 2**self.gear['coffee'].quantity
         self.current_clicks += self.gear['assistant'].quantity * 2**self.gear['coffee'].quantity
         self.current_deaths_show.config(text='Puppy Deaths\n {:,}'.format(self.current_deaths-self.current_clicks))
-        self.current_clicks_show.config(text='PupBucks\n {:,}'.format(self.current_clicks))
+        self.PupBucks_show.config(text='PupBucks\n {:,}'.format(self.PupBucks))
 
 
     def purchase(self, name):
-        if self.current_clicks >= self.gear[name].cost:
+        if self.PupBucks >= self.gear[name].cost:
             self.gear[name].quantity += 1
-            self.current_clicks -= self.gear[name].cost
+            self.PupBucks -= self.gear[name].cost
             self.current_deaths = self.current_deaths-self.gear[name].cost
             self.gear[name].cost =int((self.gear[name].cost + 1)* 2)
-            self.current_clicks_show.config(text = 'PupBucks\n {:,}'.format(self.current_clicks))
+            self.PupBucks_show.config(text = 'PupBucks\n {:,}'.format(self.PupBucks))
             self.current_deaths_show.config(text = 'Puppy Deaths\n {:,}'.format(self.current_deaths))
             self.purchase_buttons[name].config(
                 text = self.purchase_buttons[name]['text'].split(': ')[0] + ': {:.1f}: {}'.format(
@@ -160,9 +162,10 @@ class Clicker:
             if gear.synergy_unlocked and gear.synergy_unlocked.quantity:
                 per_second += int(gear.quantity * gear.synergy_building.quantity * 1.1)
         self.current_clicks += int(per_second+deaths_per_second)
+        self.PupBucks += int(per_second+deaths_per_second)
         self.current_deaths += int(deaths_per_second)
         self.current_deaths_show.config(text = 'Puppy Deaths\n {:,}'.format(self.current_deaths-self.current_clicks))
-        self.current_clicks_show.config(text = 'PupBucks\n {:,}'.format(self.current_clicks))
+        self.PupBucks_show.config(text = 'PupBucks\n {:,}'.format(self.PupBucks))
         self.per_second_show.config(text='Puppy Deaths/second\n {:,}'.format(int((-1)*per_second)))
         #Game Updates
         if (Clicker.game_flag == True and Clicker.game_entry):
@@ -181,8 +184,8 @@ class Clicker:
                         #fetch_time += 1
                     #else:
                     messagebox.showinfo("Game1", "Wow you threw the ball " + str(distance) + " meters! And look! The puppy brought back something with the ball! It's 5 PupBucks!")
-                    self.current_clicks = int((self.current_clicks + int(per_second+deaths_per_second)+5))
-                    self.current_clicks_show.config(text = 'PupBucks\n {:,}'.format(self.current_clicks))
+                    self.PupBucks = int((self.PupBucks + 5))
+                    self.PupBucks_show.config(text = 'PupBucks\n {:,}'.format(self.PupBucks))
                 if (Clicker.game_entry <= 20 and Clicker.game_entry > 10):
                     messagebox.showinfo("Game2", "Wow you threw the ball " + str(distance) + " meters! And look! The puppy brought back something with the ball! It's a volunteer! How lucky!")
                     self.gear['volunteer'].quantity += 1
@@ -215,14 +218,14 @@ class Clicker:
                 value6 = random.random()
                 if (value6 >= 0.5):
                     messagebox.showinfo("Event 6a", "Oh no! The billionaire's puppy food was expired! Many puppies get tummy aches and you have to pay for their care. Cut your PupBucks in half")
-                    self.current_clicks = int((self.current_clicks + int(per_second+deaths_per_second))/2)
-                    self.current_clicks_show.config(text = 'PupBucks\n {:,}'.format(self.current_clicks))
+                    self.PupBucks = int((self.PupBucks + int(per_second+deaths_per_second))/2)
+                    self.PupBucks_show.config(text = 'PupBucks\n {:,}'.format(self.PupBucks))
                     Clicker.event_time = 0
                     Clicker.event6_flag = False
                 else:
                     messagebox.showinfo("Event 6b", "That puppy food was incredible! Your puppies look so happy and healthy that a bunch got adopted. Double your PupBucks!")
-                    self.current_clicks = int((self.current_clicks + int(per_second+deaths_per_second))*2)
-                    self.current_clicks_show.config(text = 'PupBucks\n {:,}'.format(self.current_clicks))
+                    self.PupBucks = int((self.PupBucks + int(per_second+deaths_per_second))*2)
+                    self.PupBucks_show.config(text = 'PupBucks\n {:,}'.format(self.PupBucks))
                     Clicker.event_time = 0
                     Clicker.event6_flag = False
 
@@ -260,10 +263,10 @@ class Clicker:
         if(value == 5.):
             messagebox.showinfo("Event 5", "Oh no! An outbreak Puppitis has been spotted! 150,000 were affected and passed on to the big farm in the sky.")
             self.current_deaths = self.current_deaths + 150000
-            self.current_deaths_show.config(text = 'Puppy Deaths\n {:,}'.format(self.current_deaths-self.current_clicks))"""
+            self.current_deaths_show.config(text = 'Puppy Deaths\n {:,}'.format(self.current_deaths-self.current_clicks))
         if(value == 6. and Clicker.event6_flag == False):
             Clicker.event6_flag = True
-            messagebox.showinfo("Event 6", "Some strange billionaire donated some high class puppy food to your pound. Your puppies eat it excitedly. Look at their tails wag!")
+            messagebox.showinfo("Event 6", "Some strange billionaire donated some high class puppy food to your pound. Your puppies eat it excitedly. Look at their tails wag!")"""
 
 
 
